@@ -958,8 +958,10 @@ durable `tortoise_bots_claimed` ledger end to end:
   (`AiPlayerbot.ClaimedBotSelfEquip`, `0` locks level 60), marks displaced
   items `FORCE_USAGE_KEEP`, and pins owner-equipped items (`equip`, addon, or
   equipped trade) as `FORCE_USAGE_EQUIP`.
-- **Control.** Guild members control claimed bots (`BotCommandContext`,
-  `PlayerbotSecurity`); the roster streams a `TBM:CLAIMED_*` snapshot plus a
+- **Control.** The claiming character and any real player in the bot's
+  guild whose rank may edit officer notes control a claimed bot
+  (`ClaimLifecycle::MayControl`, used by `BotCommandContext`,
+  `PlayerbotSecurity`, trade and equip pins); the roster streams a `TBM:CLAIMED_*` snapshot plus a
   `claimed-roster` capability for the addon's Guild tab.
 - **Protection.** Claimed guids are excluded from pool-reset snapshots and
   managed-character counts (`RandomBotPoolReset`, `RandomBotAccountRegistry`);

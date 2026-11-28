@@ -60,7 +60,7 @@ The interface is divided into functional tabs designed for different stages of g
 
 ### Guild Tab
 
-- Displays claimed guild bots for your account, detailing bot levels and grouping state.
+- Displays the guild bots you invited, detailing bot levels and grouping state. A member whose guild rank may edit officer notes (the rank that may give guild orders) sees and controls every claimed bot of the guild, whoever invited it.
 - **Order:** opens the order window for a bot: search an item, choose Farm, Buy or Craft, an amount and a farm time in hours (1-24, or no time limit — the default). See [Guild Orders](../guild-orders.md).
 
 ---

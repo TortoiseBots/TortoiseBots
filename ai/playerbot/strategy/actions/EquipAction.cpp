@@ -65,7 +65,7 @@ bool EquipAction::PinPlayerEquippedItemIfClaimed(PlayerbotAI* ai, Player* reques
     bool const isOwnedOrHired = !sRandomBotFacade.IsRandomBot(bot) ||
         TortoiseBots::HireLifecycle::Instance().IsHired(bot->GetObjectGuid());
     bool const isOwner = (requester == ai->GetMaster()) ||
-        TortoiseBots::ClaimLifecycle::Instance().IsClaimedByPlayer(bot->GetGUIDLow(), requester->GetGUIDLow());
+        TortoiseBots::ClaimLifecycle::Instance().MayControl(bot->GetGUIDLow(), requester);
     if (!TortoiseBots::ShouldPinPlayerEquippedItem(isClaimed, isOwner, isOwnedOrHired))
         return false;
     if (!SetForceItemUsageIfChanged(ai, item, ForceItemUsage::FORCE_USAGE_EQUIP, false))

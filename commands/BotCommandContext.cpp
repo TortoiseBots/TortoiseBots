@@ -55,8 +55,8 @@ bool CanControlBot(Player* requester, BotRecord const* record)
     if (ownerAccount != 0 && ownerAccount == requester->GetSession()->GetAccountId())
         return true;
 
-    // Issue #489: Claimed guild bot owned by this player
-    if (ClaimLifecycle::Instance().IsClaimedByPlayer(record->characterGuid.GetCounter(), requester->GetGUIDLow()))
+    // Issue #489: claimed guild bot of this player, or of their guild when an officer
+    if (ClaimLifecycle::Instance().MayControl(record->characterGuid.GetCounter(), requester))
         return true;
 
     return false;
