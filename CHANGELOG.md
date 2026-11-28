@@ -196,6 +196,13 @@
 - Fixed: the totem focus no longer cuts a cast already aimed at the totem it focuses.
 - taunt_after_cast now runs on AuraTactics alone (AiPlayerbot.DungeonRunCharmYield is no longer needed).
 
+## v1.33.1 (2026-11-28)
+
+### Guilds & Bots
+- Every guild officer can now see and command the guild's bots, not just the player who invited them. [#1702](https://github.com/Sagiroth/TortoiseBots/pull/1702)
+
+---
+
 ## v1.33.0 (2026-11-26)
 
 ### Commands
