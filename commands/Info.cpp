@@ -440,7 +440,7 @@ ClaimedRosterSnapshot BuildClaimedRoster(Player* requester, std::vector<OwnedCha
     if (!requester)
         return snapshot;
 
-    snapshot.guids = ClaimLifecycle::Instance().GetClaimedBotsForPlayer(requester->GetGUIDLow());
+    snapshot.guids = ClaimLifecycle::Instance().GetControlledBots(requester);
     snapshot.claimedCount = snapshot.guids.size();
 
     // Owned alts playing on their own in the player's guild take guild orders

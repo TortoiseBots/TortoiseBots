@@ -30,7 +30,7 @@ PlayerbotSecurityLevel PlayerbotSecurity::LevelFor(Player* from, DenyReason* rea
         return PlayerbotSecurityLevel::PLAYERBOT_SECURITY_ALLOW_ALL;
     }
     // Issue #489: Check if the bot is claimed by the requester into their guild
-    else if (TortoiseBots::ClaimLifecycle::Instance().IsClaimedByPlayer(bot->GetGUIDLow(), from->GetGUIDLow()))
+    else if (TortoiseBots::ClaimLifecycle::Instance().MayControl(bot->GetGUIDLow(), from))
     {
         return PlayerbotSecurityLevel::PLAYERBOT_SECURITY_ALLOW_ALL;
     }
