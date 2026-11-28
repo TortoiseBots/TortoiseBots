@@ -38,6 +38,18 @@ inline bool MayClaimBot(bool isUnguilded, bool isPoolBot, bool isAlreadyClaimed,
     return true;
 }
 
+// Control gate: the player who claimed the bot controls it, and so does any
+// real player in the bot's guild whose rank may edit officer notes (the same
+// rank that may give guild orders), so a guild's officers share its bots.
+inline bool MayControlClaimedBot(bool isClaimer, uint32_t botGuildId, uint32_t requesterGuildId,
+    bool requesterIsRealPlayer, bool requesterRankEditsOfficerNotes)
+{
+    if (isClaimer)
+        return true;
+    return botGuildId != 0 && botGuildId == requesterGuildId && requesterIsRealPlayer &&
+        requesterRankEditsOfficerNotes;
+}
+
 // Gear upgrade gate: May this bot automatically equip an upgrade it found?
 // Regular pool bots can equip upgrades. Claimed bots auto-equip upgrades at any
 // level when claimedBotSelfEquip is enabled; when disabled, claimed bots at

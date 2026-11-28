@@ -1,9 +1,14 @@
 #include "ClaimLifecycle.h"
 #include "AhBotSellerAccount.h"
+#include "policy/hire/ClaimedBotPolicy.h"
 
 #include "../host/ModuleLog.h"
 
 #include "Database/DatabaseEnv.h"
+#include "Guild/Guild.h"
+#include "Guild/GuildMgr.h"
+#include "Player.h"
+#include "WorldSession.h"
 #include "Log.h"
 
 namespace TortoiseBots
@@ -115,18 +120,62 @@ bool ClaimLifecycle::IsClaimed(uint32_t botGuidLow) const
     return m_claimedByBotGuid.find(botGuidLow) != m_claimedByBotGuid.end();
 }
 
-bool ClaimLifecycle::IsClaimedByPlayer(uint32_t botGuidLow, uint32_t playerGuidLow) const
-{
-    std::lock_guard<std::mutex> lock(m_mutex);
-    auto it = m_claimedByBotGuid.find(botGuidLow);
-    return it != m_claimedByBotGuid.end() && it->second.ownerPlayerGuidLow == playerGuidLow;
-}
-
 bool ClaimLifecycle::IsClaimedByAccount(uint32_t botGuidLow, uint32_t accountId) const
 {
     std::lock_guard<std::mutex> lock(m_mutex);
     auto it = m_claimedByBotGuid.find(botGuidLow);
     return it != m_claimedByBotGuid.end() && it->second.ownerAccountId == accountId;
+}
+
+namespace
+{
+
+bool RankEditsOfficerNotes(Player* requester)
+{
+    Guild* guild = requester->GetGuildId() ? sGuildMgr.GetGuildById(requester->GetGuildId()) : nullptr;
+    return guild && guild->HasRankRight(requester->GetRank(), GR_RIGHT_EOFFNOTE);
+}
+
+bool IsRealPlayer(Player* requester)
+{
+    return requester->GetSession() && requester->GetSession()->HasNetworkTransport();
+}
+
+} // namespace
+
+bool ClaimLifecycle::MayControl(uint32_t botGuidLow, Player* requester) const
+{
+    if (!requester)
+        return false;
+    ClaimedBotRecord record;
+    {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        auto it = m_claimedByBotGuid.find(botGuidLow);
+        if (it == m_claimedByBotGuid.end())
+            return false;
+        record = it->second;
+    }
+    bool const isClaimer = record.ownerPlayerGuidLow == requester->GetGUIDLow();
+    return MayControlClaimedBot(isClaimer, record.guildId, requester->GetGuildId(),
+        isClaimer || IsRealPlayer(requester), isClaimer || RankEditsOfficerNotes(requester));
+}
+
+std::vector<uint32_t> ClaimLifecycle::GetControlledBots(Player* requester) const
+{
+    std::vector<uint32_t> result;
+    if (!requester)
+        return result;
+    uint32_t const playerGuidLow = requester->GetGUIDLow();
+    bool const officer = requester->GetGuildId() && IsRealPlayer(requester) && RankEditsOfficerNotes(requester);
+    std::lock_guard<std::mutex> lock(m_mutex);
+    for (auto const& pair : m_claimedByBotGuid)
+    {
+        ClaimedBotRecord const& record = pair.second;
+        bool const isClaimer = record.ownerPlayerGuidLow == playerGuidLow;
+        if (MayControlClaimedBot(isClaimer, record.guildId, requester->GetGuildId(), officer, officer))
+            result.push_back(pair.first);
+    }
+    return result;
 }
 
 uint32_t ClaimLifecycle::GetOwnerPlayerGuid(uint32_t botGuidLow) const
@@ -148,18 +197,6 @@ uint32_t ClaimLifecycle::GetGuildId(uint32_t botGuidLow) const
     std::lock_guard<std::mutex> lock(m_mutex);
     auto it = m_claimedByBotGuid.find(botGuidLow);
     return it != m_claimedByBotGuid.end() ? it->second.guildId : 0;
-}
-
-std::vector<uint32_t> ClaimLifecycle::GetClaimedBotsForPlayer(uint32_t ownerPlayerGuidLow) const
-{
-    std::vector<uint32_t> result;
-    std::lock_guard<std::mutex> lock(m_mutex);
-    for (auto const& pair : m_claimedByBotGuid)
-    {
-        if (pair.second.ownerPlayerGuidLow == ownerPlayerGuidLow)
-            result.push_back(pair.first);
-    }
-    return result;
 }
 
 std::vector<uint32_t> ClaimLifecycle::GetAllClaimedBots() const

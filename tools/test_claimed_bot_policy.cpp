@@ -100,9 +100,26 @@ static void TestResetExemption()
     assert(!IsClaimedBotExemptFromReset(false));
 }
 
+static void TestControl()
+{
+    // The claimer always controls the bot.
+    assert(MayControlClaimedBot(true, 0, 0, false, false));
+    // An officer of the bot's guild controls it.
+    assert(MayControlClaimedBot(false, 7, 7, true, true));
+    // A member whose rank may not edit officer notes does not.
+    assert(!MayControlClaimedBot(false, 7, 7, true, false));
+    // An officer of another guild does not.
+    assert(!MayControlClaimedBot(false, 7, 8, true, true));
+    // A bot never controls another claimed bot.
+    assert(!MayControlClaimedBot(false, 7, 7, false, true));
+    // A claim without a guild matches nobody but the claimer.
+    assert(!MayControlClaimedBot(false, 0, 0, true, true));
+}
+
 int main()
 {
     TestEligibility();
+    TestControl();
     TestSelfEquip();
     TestPlayerOverridePin();
     TestKeepDisplacedGear();

@@ -154,7 +154,7 @@ bool TradeStatusAction::Execute(Event& event)
             {
                 bool const isClaimed = TortoiseBots::ClaimLifecycle::Instance().IsClaimed(bot->GetGUIDLow());
                 bool const isOwner = trader && (trader == ai->GetMaster() ||
-                    TortoiseBots::ClaimLifecycle::Instance().IsClaimedByPlayer(bot->GetGUIDLow(), trader->GetGUIDLow()));
+                    TortoiseBots::ClaimLifecycle::Instance().MayControl(bot->GetGUIDLow(), trader));
                 if (TortoiseBots::ShouldPinPlayerEquippedItem(isClaimed, isOwner) && !givenItemIds.empty())
                 {
                     std::set<uint32> tradedIds;
